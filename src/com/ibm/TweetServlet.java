@@ -42,29 +42,6 @@ public class TweetServlet extends HttpServlet {
 
     	AsyncContext ac = request.startAsync();
 
-			/*
-    	ac.addListener(new AsyncListener() {
-            @Override
-            public void onComplete(AsyncEvent event) throws IOException {
-              System.out.println("Async complete");
-            }
-
-            @Override
-            public void onTimeout(AsyncEvent event) throws IOException {
-              System.out.println("Timed out...");
-            }
-
-            @Override
-            public void onError(AsyncEvent event) throws IOException {
-              System.out.println("Error...");
-            }
-
-            @Override
-            public void onStartAsync(AsyncEvent event) throws IOException {
-              System.out.println("Starting async...");
-            }
-          });
-    	*/
     	ScheduledThreadPoolExecutor executer = new ScheduledThreadPoolExecutor(5);
         executer.execute(new TwitterAsyncService(ac));
 	}
