@@ -1,4 +1,6 @@
 applications:
+- services:
+  - mt-service
 - disk_quota: 1024M
   host: TranslateTweets
   name: TranslateTweets
@@ -6,6 +8,4 @@ applications:
   domain: mybluemix.net
   instances: 1
   memory: 256M
-  services:
-  - mt-service
 
