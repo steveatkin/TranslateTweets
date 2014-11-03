@@ -24,13 +24,13 @@ import java.util.logging.Logger;
 @WebServlet(urlPatterns = {"/Tweet"}, asyncSupported = true)
 public class TweetServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
-	
-       
+
+
+
     public TweetServlet() {
         super();
     }
-    
+
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,9 +39,10 @@ public class TweetServlet extends HttpServlet {
 		// set the response type for server side events
 		response.setContentType("text/event-stream");
     	response.setCharacterEncoding("UTF-8");
-		
+
     	AsyncContext ac = request.startAsync();
-    	
+
+			/*
     	ac.addListener(new AsyncListener() {
             @Override
             public void onComplete(AsyncEvent event) throws IOException {
@@ -63,7 +64,7 @@ public class TweetServlet extends HttpServlet {
               System.out.println("Starting async...");
             }
           });
-    	
+    	*/
     	ScheduledThreadPoolExecutor executer = new ScheduledThreadPoolExecutor(5);
         executer.execute(new TwitterAsyncService(ac));
 	}
