@@ -1,6 +1,6 @@
 applications:
 - services:
-  - mt-service
+  - "Machine Translation-c5"
   host: TranslateTweets
   name: TranslateTweets
   path: webStarterApp.war
