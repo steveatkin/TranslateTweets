@@ -3,7 +3,7 @@ applications:
   - "Machine Translation-c5"
   host: TranslateTweets
   name: TranslateTweets
-  path: webStarterApp.war
+  path: translate.war
   domain: mybluemix.net
   instances: 1
   memory: 256M
