@@ -1,6 +1,6 @@
 applications:
 - services:
-  - "Machine Translation-c5"
+  - mt-watson
   host: TranslateTweets
   name: TranslateTweets
   path: translate.war
