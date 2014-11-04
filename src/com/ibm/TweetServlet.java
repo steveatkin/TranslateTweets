@@ -15,17 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Servlet implementation class TweetServlet
  */
 @WebServlet(urlPatterns = {"/Tweet"}, asyncSupported = true)
 public class TweetServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-
-
 
     public TweetServlet() {
         super();

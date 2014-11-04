@@ -3,6 +3,8 @@ package com.ibm;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import twitter4j.*;
 
@@ -12,18 +14,19 @@ public class TwitterAsyncService implements Runnable{
 
 	private AsyncContext ac;
 	private WatsonTranslate wt = new WatsonTranslate();
-	
+	private static Logger logger = Logger.getLogger(TwitterAsyncService.class.getName());
+
 	public TwitterAsyncService(AsyncContext context) {
 		this.ac = context;
 	}
 
-	
+
 	@Override
 	  public void run() {
 	    PrintWriter writer = null;
 	    String searchTerm = ac.getRequest().getParameter("search");
-	    String translation = ac.getRequest().getParameter("translate");
-	    
+	    String targetLang = ac.getRequest().getParameter("translate");
+
 	    try {
 	    	writer = ac.getResponse().getWriter();
 	    }
@@ -33,36 +36,38 @@ public class TwitterAsyncService implements Runnable{
 
 	    Query query = new Query(searchTerm);
 	    query.setResultType(Query.POPULAR);
-        	
+
         Twitter twitter = TwitterFactory.getSingleton();
         try {
         	// Just get the first page of results to avoid exceeding the Twitter rate limit
         	QueryResult result = twitter.search(query);
-            
+
         	List<Status> tweets = result.getTweets();
         	for (Status tweet : tweets) {
         		JSONObject json = new JSONObject();
         		try {
-        			json.put("screenName", tweet.getUser().getScreenName()); 
+        			json.put("screenName", tweet.getUser().getScreenName());
         			json.put("message", tweet.getText());
-        			// Call Watson machine translation
-        			if(!translation.equals("")) {
-        				json.put("translation", wt.translate(tweet.getText(), translation));
+        			// Call Watson machine translation if there is a request to translate
+        			if(!targetLang.equals("")) {
+        				json.put("translation", wt.translate(tweet.getText(), targetLang));
         			}
+							// Call Watson language identification service
+							json.put("language", wt.identify(tweet.getText()));
+
         			writer.write("data: " + json.toString() + "\n\n");
         			writer.flush();
         		}
         		catch(JSONException e) {
-        			System.out.println("BAD JSON");
+							logger.log(Level.SEVERE, "JSON Error: "+e.getMessage(), e);
         		}
-        		//System.out.println("@" + tweet.getUser().getScreenName() + " - " + tweet.getText());
         	}
         	writer.write("event: finished\n");
         	writer.close();
         	ac.complete();
         }
         catch(TwitterException e) {
-        	System.out.println(e);
+        	logger.log(Level.SEVERE, "Twitter Error: "+e.getMessage(), e);
         }
 	}
 }
