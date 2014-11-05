@@ -93,29 +93,30 @@ public class WatsonTranslate {
     }
 
 	public String translate(String text, String sid) {
-		String response = "";
+		String tweet = "";
 		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
 		qparams.add(new BasicNameValuePair("txt",text ));
 		qparams.add(new BasicNameValuePair("sid",sid ));
-		qparams.add(new BasicNameValuePair("rt","text" ));
+		qparams.add(new BasicNameValuePair("rt","json" ));
 
 		try {
 			Executor executor = Executor.newInstance();
     		URI serviceURI = new URI(baseURLTranslation).normalize();
     	    String auth = usernameTranslation + ":" + passwordTranslation;
-    	    byte[] responseB = executor.execute(Request.Post(serviceURI)
+    	    String response = executor.execute(Request.Post(serviceURI)
 			    .addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
 			    .bodyString(URLEncodedUtils.format(qparams, "utf-8"),
 			    		ContentType.APPLICATION_FORM_URLENCODED)
-			    ).returnContent().asBytes();
+			    ).returnContent().asString();
 
-    	    response = new String (responseB,"UTF-8");
+    	    JSONObject translation = JSONObject.parse(response);
+				  logger.info("Response: " + response);
 		}
 		catch(Exception e) {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
 		}
 
-		return response;
+		return tweet;
 	}
 
 
