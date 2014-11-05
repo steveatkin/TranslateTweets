@@ -104,8 +104,8 @@ ResourceBundle res = ResourceBundle.getBundle("TweetTranslate", request.getLocal
             <tr>
                 <th data-field="screenName"><%=res.getString("screen_name_table")%></th>
                 <th data-field="message"><%=res.getString("message_table")%></th>
+                <th data-field="language"><%=res.getString("language_table")%></th>
                 <th data-field="translation"><%=res.getString("translation_table")%></th>
-                <th data-field="language">Tweet Language</th>
             </tr>
         	</thead>
         	<tbody>
