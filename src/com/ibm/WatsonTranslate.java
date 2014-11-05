@@ -123,7 +123,7 @@ public class WatsonTranslate {
 	public String identify(String text) {
 		String language = "";
 		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
-		qparams.add(new BasicNameValuePair("txt","This is a test of the service"));
+		qparams.add(new BasicNameValuePair("txt",text));
 		qparams.add(new BasicNameValuePair("sid","lid-generic"));
 		qparams.add(new BasicNameValuePair("rt","json"));
 
@@ -144,7 +144,6 @@ public class WatsonTranslate {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
 		}
 
-		logger.info("JSON Response: " + language);
 		return language;
 	}
 }
