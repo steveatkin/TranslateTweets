@@ -137,8 +137,6 @@ public class WatsonTranslate {
 							ContentType.APPLICATION_FORM_URLENCODED)
 					).returnContent().asString();
 
-					logger.info("JSON Response: " + response);
-					
 					JSONObject lang = JSONObject.parse(response);
 					language = (String)lang.get("lang");
 		}
@@ -146,6 +144,7 @@ public class WatsonTranslate {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
 		}
 
+		logger.info("JSON Response: " + language);
 		return language;
 	}
 }
