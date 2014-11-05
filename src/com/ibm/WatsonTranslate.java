@@ -121,28 +121,29 @@ public class WatsonTranslate {
 
 
 	public String identify(String text) {
-		String response = "";
+		String language = "";
 		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
 		qparams.add(new BasicNameValuePair("txt","This is a test of the service"));
 		qparams.add(new BasicNameValuePair("sid","lid-generic"));
-		qparams.add(new BasicNameValuePair("rt","text"));
+		qparams.add(new BasicNameValuePair("rt","json"));
 
 		try {
 			Executor executor = Executor.newInstance().auth(usernameLanguage, passwordLanguage);
 				URI serviceURI = new URI(baseURLLanguage).normalize();
 					String auth = usernameLanguage + ":" + passwordLanguage;
-					byte[] responseB = executor.execute(Request.Post(serviceURI)
+					String response = executor.execute(Request.Post(serviceURI)
 					.addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
 					.bodyString(URLEncodedUtils.format(qparams, "utf-8"),
 							ContentType.APPLICATION_FORM_URLENCODED)
-					).returnContent().asBytes();
+					).returnContent().asString();
 
-					response = new String (responseB,"UTF-8");
+					JSONObject lang = JSONObject.parse(response);
+					language = (String)lang.get("lang");
 		}
 		catch(Exception e) {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
 		}
 
-		return response;
+		return language;
 	}
 }
