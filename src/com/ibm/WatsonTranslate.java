@@ -93,30 +93,29 @@ public class WatsonTranslate {
     }
 
 	public String translate(String text, String sid) {
-		String tweet = "";
+		String tweetTranslation = "";
 		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
 		qparams.add(new BasicNameValuePair("txt",text ));
 		qparams.add(new BasicNameValuePair("sid",sid ));
-		qparams.add(new BasicNameValuePair("rt","json" ));
+		qparams.add(new BasicNameValuePair("rt","text" ));
 
 		try {
 			Executor executor = Executor.newInstance();
     		URI serviceURI = new URI(baseURLTranslation).normalize();
     	    String auth = usernameTranslation + ":" + passwordTranslation;
-    	    String response = executor.execute(Request.Post(serviceURI)
+    	    byte[] response = executor.execute(Request.Post(serviceURI)
 			    .addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
 			    .bodyString(URLEncodedUtils.format(qparams, "utf-8"),
 			    		ContentType.APPLICATION_FORM_URLENCODED)
-			    ).returnContent().asString();
+			    ).returnContent().asBytes();
 
-    	    JSONObject translation = JSONObject.parse(response);
-				  logger.info("Response: " + response);
+    	    tweetTranslation = new String(response, "UTF-8");
 		}
 		catch(Exception e) {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
 		}
 
-		return tweet;
+		return tweetTranslation;
 	}
 
 
@@ -126,20 +125,19 @@ public class WatsonTranslate {
 		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
 		qparams.add(new BasicNameValuePair("txt",text));
 		qparams.add(new BasicNameValuePair("sid","lid-generic"));
-		qparams.add(new BasicNameValuePair("rt","json"));
+		qparams.add(new BasicNameValuePair("rt","text"));
 
 		try {
 			Executor executor = Executor.newInstance();
 				URI serviceURI = new URI(baseURLLanguage).normalize();
 					String auth = usernameLanguage + ":" + passwordLanguage;
-					String response = executor.execute(Request.Post(serviceURI)
+					byte[] response = executor.execute(Request.Post(serviceURI)
 					.addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
 					.bodyString(URLEncodedUtils.format(qparams, "utf-8"),
 							ContentType.APPLICATION_FORM_URLENCODED)
-					).returnContent().asString();
+					).returnContent().asBytes();
 
-					JSONObject lang = JSONObject.parse(response);
-					language = (String)lang.get("lang");
+					language = new String(response, "UTF-8");
 		}
 		catch(Exception e) {
 			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
