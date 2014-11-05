@@ -128,7 +128,6 @@ public class WatsonTranslate {
 		qparams.add(new BasicNameValuePair("rt","json"));
 
 		try {
-			//Executor executor = Executor.newInstance().auth(usernameLanguage, passwordLanguage);
 			Executor executor = Executor.newInstance();
 				URI serviceURI = new URI(baseURLLanguage).normalize();
 					String auth = usernameLanguage + ":" + passwordLanguage;
