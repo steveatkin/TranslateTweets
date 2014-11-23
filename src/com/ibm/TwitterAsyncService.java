@@ -67,6 +67,8 @@ public class TwitterAsyncService implements Runnable{
         		}
         	}
         	writer.write("event: finished\n");
+        	writer.write("data: \n\n");
+        	writer.flush();
         	writer.close();
         	ac.complete();
         }
