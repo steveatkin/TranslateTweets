@@ -1,28 +1,25 @@
 package com.ibm;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.fluent.Executor;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicNameValuePair;
+
+import com.ibm.watson.developer_cloud.language_translation.v2.LanguageTranslation;
+import com.ibm.watson.developer_cloud.language_translation.v2.model.Translation;
+import com.ibm.watson.developer_cloud.language_translation.v2.model.TranslationResult;
+import com.ibm.watson.developer_cloud.language_identification.v1.LanguageIdentification;
+import com.ibm.watson.developer_cloud.language_identification.v1.model.IdentifiedLanguage;
 
 public class WatsonTranslate {
 	private static Logger logger = Logger.getLogger(WatsonTranslate.class.getName());
 
-	private static String translationService = "machine_translation";
-	private static String languageService = "language_identification";
+	private static String translationService = "language_translation";
+	private static String languageService = "language_translation";
 
 	// If running locally add the information from VCAP_SERVICES
 	private static String baseURLTranslation = "put url here";
@@ -39,11 +36,11 @@ public class WatsonTranslate {
 
 	private static void processVCAP_Services() {
     	logger.info("Processing VCAP_SERVICES");
-        JSONObject sysEnv = getVcapServices();
-        if (sysEnv == null) return;
 
-
-				logger.info("Looking for: "+ translationService);
+				JSONObject sysEnv = getVcapServices();
+        if (sysEnv == null) {
+					return;
+				}
 
         if (sysEnv.containsKey(translationService)) {
 					JSONArray services = (JSONArray)sysEnv.get(translationService);
@@ -55,10 +52,7 @@ public class WatsonTranslate {
 					logger.info("baseURL  = "+baseURLTranslation);
 					logger.info("username   = "+usernameTranslation);
 					logger.info("password = "+passwordTranslation);
-    		} else {
-        	logger.warning(translationService + " is not available in VCAP_SERVICES, "
-        			+ "please bind the service to your application");
-        }
+    		}
 
 				logger.info("Looking for: "+ languageService);
 
@@ -92,57 +86,63 @@ public class WatsonTranslate {
         return sysEnv;
     }
 
-	public String translate(String text, String sid) {
-		String tweetTranslation = "";
-		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
-		qparams.add(new BasicNameValuePair("txt",text ));
-		qparams.add(new BasicNameValuePair("sid",sid ));
-		qparams.add(new BasicNameValuePair("rt","text" ));
+		public String translate(String text, String sid) {
+			String tweetTranslation = "";
+			String sourceLang = "en";
+			String targetLang = "en";
 
-		try {
-			Executor executor = Executor.newInstance();
-    		URI serviceURI = new URI(baseURLTranslation).normalize();
-    	    String auth = usernameTranslation + ":" + passwordTranslation;
-    	    byte[] response = executor.execute(Request.Post(serviceURI)
-			    .addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
-			    .bodyString(URLEncodedUtils.format(qparams, "utf-8"),
-			    		ContentType.APPLICATION_FORM_URLENCODED)
-			    ).returnContent().asBytes();
+			LanguageTranslation service = new LanguageTranslation();
+			service.setUsernameAndPassword(usernameLanguage, passwordLanguage);
 
-    	    tweetTranslation = new String(response, "UTF-8");
-		}
-		catch(Exception e) {
-			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
-		}
+			if(sid.equals("mt-arar-enus")) {
+				sourceLang = "ar";
+				targetLang = "en";
+			}
+			else if(sid.equals("mt-ptbr-enus")) {
+				sourceLang = "pt";
+				targetLang = "en";
+			}
+			else if(sid.equals("mt-enus-ptbr")) {
+				sourceLang = "en";
+				targetLang = "pt";
+			}
+			else if(sid.equals("mt-enus-frfr")) {
+				sourceLang = "en";
+				targetLang = "fr";
+			}
+			else if(sid.equals("mt-enus-eses")) {
+				sourceLang = "en";
+				targetLang = "es";
+			}
+			else if(sid.equals("mt-frfr-enus")) {
+				sourceLang = "fr";
+				targetLang = "en";
+			}
+			else if(sid.equals("mt-eses-enus")) {
+				sourceLang = "es";
+				targetLang = "en";
+			}
 
-		return tweetTranslation;
-	}
+			TranslationResult translationResult = service.translate(text, sourceLang, targetLang);
 
+			Iterator<Translation> itr = translationResult.getTranslations().iterator();
+			while(itr.hasNext()) {
+				tweetTranslation = itr.next().getTranslation();
+			}
 
-
-	public String identify(String text) {
-		String language = "";
-		List<NameValuePair> qparams = new ArrayList<NameValuePair>();
-		qparams.add(new BasicNameValuePair("txt",text));
-		qparams.add(new BasicNameValuePair("sid","lid-generic"));
-		qparams.add(new BasicNameValuePair("rt","text"));
-
-		try {
-			Executor executor = Executor.newInstance();
-				URI serviceURI = new URI(baseURLLanguage).normalize();
-					String auth = usernameLanguage + ":" + passwordLanguage;
-					byte[] response = executor.execute(Request.Post(serviceURI)
-					.addHeader("Authorization", "Basic "+ Base64.encodeBase64String(auth.getBytes()))
-					.bodyString(URLEncodedUtils.format(qparams, "utf-8"),
-							ContentType.APPLICATION_FORM_URLENCODED)
-					).returnContent().asBytes();
-
-					language = new String(response, "UTF-8");
-		}
-		catch(Exception e) {
-			logger.log(Level.SEVERE, "Watson error: "+e.getMessage(), e);
+			return tweetTranslation;
 		}
 
-		return language;
-	}
+		public String identify(String text) {
+				String language = "";
+
+				LanguageIdentification service = new LanguageIdentification();
+				service.setUsernameAndPassword(usernameLanguage, passwordLanguage);
+
+				IdentifiedLanguage lang = service.identify(text);
+				language = lang.getId();
+
+				return language;
+			}
+
 }

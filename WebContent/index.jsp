@@ -23,6 +23,7 @@ ResourceBundle res = ResourceBundle.getBundle("TweetTranslate", request.getLocal
     <script src="js/jquery-1.11.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-table.min.js"></script>
+    <script src="js/eventsource.min.js"></script>
     <script>
     	var translation = "";
 
