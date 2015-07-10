@@ -1,17 +1,7 @@
-This README.md file is displayed on your project page. You should edit this 
-file to describe your project, including instructions for building and 
-running the project, pointers to the license under which you are making the 
-project available, and anything else you think would be useful for others to
-know.
+To get started with using Watson Machine and Language Identification services you need to fork this project
+and change the Twitter credentials in the twitter4j.properties file to your own credentials. 
 
-We have created an empty license.txt file for you. Well, actually, it says,
-"<Replace this text with the license you've chosen for your project.>" We 
-recommend you edit this and include text for license terms under which you're
-making your code available. A good resource for open source licenses is the 
-[Open Source Initiative](http://opensource.org/).
+Once you have this project up and running with the Liberty for Java runtime and the Watson Machine and
+Language Identification Services bound to the appliaction you can go ahead and enter a topic to 
+search on Twitter. The application will then display the Tweets translated into the language you selected.
 
-Be sure to update your project's profile with a short description and 
-eye-catching graphic.
-
-Finally, consider defining a timeline and work items on the "Current Work" tab 
-to give interested developers a sense of your cadence and upcoming enhancements.
