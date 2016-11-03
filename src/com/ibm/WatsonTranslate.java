@@ -9,26 +9,27 @@ import com.ibm.json.java.JSONArray;
 import com.ibm.json.java.JSONObject;
 
 
-import com.ibm.watson.developer_cloud.language_translation.v2.LanguageTranslation;
-import com.ibm.watson.developer_cloud.language_translation.v2.model.Translation;
-import com.ibm.watson.developer_cloud.language_translation.v2.model.TranslationResult;
-import com.ibm.watson.developer_cloud.language_identification.v1.LanguageIdentification;
-import com.ibm.watson.developer_cloud.language_identification.v1.model.IdentifiedLanguage;
+import com.ibm.watson.developer_cloud.language_translator.v2.LanguageTranslator;
+import com.ibm.watson.developer_cloud.language_translator.v2.model.Language;
+import com.ibm.watson.developer_cloud.language_translator.v2.model.Translation;
+import com.ibm.watson.developer_cloud.language_translator.v2.model.TranslationResult;
+import com.ibm.watson.developer_cloud.natural_language_classifier.v1.NaturalLanguageClassifier;
+import com.ibm.watson.developer_cloud.natural_language_classifier.v1.model.Classification;
 
 public class WatsonTranslate {
 	private static Logger logger = Logger.getLogger(WatsonTranslate.class.getName());
 
-	private static String translationService = "language_translation";
-	private static String languageService = "language_translation";
+	private static String translationService = "language_translator";
+	private static String languageIDService = "natural_language_classifier";
 
 	// If running locally add the information from VCAP_SERVICES
 	private static String baseURLTranslation = "put url here";
 	private static String usernameTranslation = "put username here";
 	private static String passwordTranslation = "put password here";
 
-	private static String baseURLLanguage = "put url here";
-	private static String usernameLanguage = "put username here";
-	private static String passwordLanguage = "put password here";
+	private static String baseURLIDLanguage = "put url here";
+	private static String usernameIDLanguage = "put username here";
+	private static String passwordIDLanguage = "put password here";
 
 	static {
 		processVCAP_Services();
@@ -54,20 +55,20 @@ public class WatsonTranslate {
 					logger.info("password = "+passwordTranslation);
     		}
 
-				logger.info("Looking for: "+ languageService);
+				logger.info("Looking for: "+ languageIDService);
 
-				if (sysEnv.containsKey(languageService)) {
-					JSONArray services = (JSONArray)sysEnv.get(languageService);
+				if (sysEnv.containsKey(languageIDService)) {
+					JSONArray services = (JSONArray)sysEnv.get(languageIDService);
 					JSONObject service = (JSONObject)services.get(0);
 					JSONObject credentials = (JSONObject)service.get("credentials");
-					baseURLLanguage = (String)credentials.get("url");
-					usernameLanguage = (String)credentials.get("username");
-					passwordLanguage = (String)credentials.get("password");
-					logger.info("baseURL  = "+baseURLLanguage);
-					logger.info("username   = "+usernameLanguage);
-					logger.info("password = "+passwordLanguage);
+					baseURLIDLanguage = (String)credentials.get("url");
+					usernameIDLanguage = (String)credentials.get("username");
+					passwordIDLanguage = (String)credentials.get("password");
+					logger.info("baseURL  = "+baseURLIDLanguage);
+					logger.info("username   = "+usernameIDLanguage);
+					logger.info("password = "+passwordIDLanguage);
 				} else {
-					logger.warning(languageService + " is not available in VCAP_SERVICES, "
+					logger.warning(languageIDService + " is not available in VCAP_SERVICES, "
 							+ "please bind the service to your application");
 				}
 
@@ -88,42 +89,42 @@ public class WatsonTranslate {
 
 		public String translate(String text, String sid) {
 			String tweetTranslation = "";
-			String sourceLang = "en";
-			String targetLang = "en";
+			Language sourceLang = Language.ENGLISH;
+			Language targetLang = Language.ENGLISH;
 
-			LanguageTranslation service = new LanguageTranslation();
-			service.setUsernameAndPassword(usernameLanguage, passwordLanguage);
+			LanguageTranslator service = new LanguageTranslator();
+			service.setUsernameAndPassword(usernameTranslation, passwordTranslation);
 
 			if(sid.equals("mt-arar-enus")) {
-				sourceLang = "ar";
-				targetLang = "en";
+				sourceLang = Language.ARABIC;
+				targetLang = Language.ENGLISH;
 			}
 			else if(sid.equals("mt-ptbr-enus")) {
-				sourceLang = "pt";
-				targetLang = "en";
+				sourceLang = Language.PORTUGUESE;
+				targetLang = Language.ENGLISH;
 			}
 			else if(sid.equals("mt-enus-ptbr")) {
-				sourceLang = "en";
-				targetLang = "pt";
+				sourceLang = Language.ENGLISH;
+				targetLang = Language.PORTUGUESE;
 			}
 			else if(sid.equals("mt-enus-frfr")) {
-				sourceLang = "en";
-				targetLang = "fr";
+				sourceLang = Language.ENGLISH;
+				targetLang = Language.FRENCH;
 			}
 			else if(sid.equals("mt-enus-eses")) {
-				sourceLang = "en";
-				targetLang = "es";
+				sourceLang = Language.ENGLISH;
+				targetLang = Language.SPANISH;
 			}
 			else if(sid.equals("mt-frfr-enus")) {
-				sourceLang = "fr";
-				targetLang = "en";
+				sourceLang = Language.FRENCH;
+				targetLang = Language.ENGLISH;
 			}
 			else if(sid.equals("mt-eses-enus")) {
-				sourceLang = "es";
-				targetLang = "en";
+				sourceLang = Language.SPANISH;
+				targetLang = Language.ENGLISH;
 			}
 
-			TranslationResult translationResult = service.translate(text, sourceLang, targetLang);
+			TranslationResult translationResult = service.translate(text, sourceLang, targetLang).execute();
 
 			Iterator<Translation> itr = translationResult.getTranslations().iterator();
 			while(itr.hasNext()) {
@@ -136,11 +137,12 @@ public class WatsonTranslate {
 		public String identify(String text) {
 				String language = "";
 
-				LanguageIdentification service = new LanguageIdentification();
-				service.setUsernameAndPassword(usernameLanguage, passwordLanguage);
+				NaturalLanguageClassifier service = new NaturalLanguageClassifier();
+				service.setUsernameAndPassword(usernameIDLanguage, passwordIDLanguage);
 
-				IdentifiedLanguage lang = service.identify(text);
-				language = lang.getId();
+				Classification classification = service.classify("<classifier-id>", text).execute();
+
+				language = classification.getId();
 
 				return language;
 			}

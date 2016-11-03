@@ -1,6 +1,7 @@
 applications:
 - services:
-  - "Language Translation"
+  - "Language Translator-s8"
+  - "Natural Language Classifier-mv"
   host: TranslateTweets
   name: TranslateTweets
   path: translate.war
